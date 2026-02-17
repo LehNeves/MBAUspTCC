@@ -3,7 +3,6 @@ resource "aws_sns_topic" "fanout_topic" {
 
   tags = {
     Project     = var.project_name
-    Environment = var.environment
     Purpose     = "fanout-comparison"
   }
 }

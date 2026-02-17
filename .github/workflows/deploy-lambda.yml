@@ -12,8 +12,10 @@ permissions:
   contents: read
 
 env:
-  AWS_REGION: us-east-1
-  LAMBDA_FUNCTION_NAME: tcc-arquitetura-lambda
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  LAMBDA_FUNCTION_NAME: ${{ var.PROJECT_NAME }}-lambda
+  ECR_REPOSITORY: ${{ var.PROJECT_NAME }}-lambda
+  IMAGE_TAG: latest
   PROJECT_PATH: Serverless/Fibonacci
 
 jobs:
@@ -24,33 +26,35 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - name: AWS Auth
+        uses: ./.github/actions/aws-auth
         with:
-          dotnet-version: '10.0.x'
-
-      - name: Restore
-        run: dotnet restore ${{ env.PROJECT_PATH }}
-
-      - name: Build
-        run: dotnet build ${{ env.PROJECT_PATH }} --configuration Release --no-restore
-
-      - name: Publish
-        run: dotnet publish ${{ env.PROJECT_PATH }} -c Release -o publish
-
-      - name: Zip package
-        run: |
-          cd publish
-          zip -r ../lambda.zip .
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::676617883170:role/GitHubRole
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_GITHUB_ROLE }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Deploy Lambda
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region $AWS_REGION \
+          | docker login --username AWS --password-stdin \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com
+
+      - name: Build Docker image
+        run: |
+          docker build -t $ECR_REPOSITORY:$IMAGE_TAG $PROJECT_PATH
+
+      - name: Tag image
+        run: |
+          docker tag $ECR_REPOSITORY:$IMAGE_TAG \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Push image
+        run: |
+          docker push \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Update Lambda
         run: |
           aws lambda update-function-code \
             --function-name $LAMBDA_FUNCTION_NAME \
-            --zip-file fileb://lambda.zip
+            --image-uri \
+            ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG

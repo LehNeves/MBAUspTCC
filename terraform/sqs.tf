@@ -5,7 +5,6 @@ resource "aws_sqs_queue" "worker_dlq" {
 
   tags = {
     Project     = var.project_name
-    Environment = var.environment
     UsedBy      = "worker"
     Type        = "dlq"
   }
@@ -18,7 +17,6 @@ resource "aws_sqs_queue" "lambda_dlq" {
 
   tags = {
     Project     = var.project_name
-    Environment = var.environment
     UsedBy      = "lambda"
     Type        = "dlq"
   }
@@ -37,7 +35,6 @@ resource "aws_sqs_queue" "worker_queue" {
 
   tags = {
     Project     = var.project_name
-    Environment = var.environment
     UsedBy      = "worker"
     Type        = "main"
   }
@@ -56,7 +53,6 @@ resource "aws_sqs_queue" "lambda_queue" {
 
   tags = {
     Project     = var.project_name
-    Environment = var.environment
     UsedBy      = "lambda"
     Type        = "main"
   }

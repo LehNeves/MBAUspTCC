@@ -7,13 +7,7 @@ variable "aws_region" {
 variable "project_name" {
   description = "Nome do projeto para prefixar recursos"
   type        = string
-  default     = "tcc-arquitetura"
-}
-
-variable "environment" {
-  description = "Ambiente do projeto"
-  type        = string
-  default     = "dev"
+  default     = "tcc-mba-usp"
 }
 
 variable "eks_cluster_name" {
@@ -23,6 +17,6 @@ variable "eks_cluster_name" {
 }
 
 locals {
-  name_prefix      = "${var.project_name}-${var.environment}"
+  name_prefix      = "${var.project_name}"
   eks_cluster_name = "${local.name_prefix}-eks"
 }

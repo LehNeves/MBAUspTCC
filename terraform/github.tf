@@ -11,6 +11,5 @@ resource "aws_iam_openid_connect_provider" "github" {
 
   tags = {
     Project     = var.project_name
-    Environment = var.environment
   }
 }
