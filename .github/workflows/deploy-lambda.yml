@@ -21,6 +21,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: TCCMbaUsp
 
     steps:
       - name: Checkout
