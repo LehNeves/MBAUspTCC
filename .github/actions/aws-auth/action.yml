@@ -1,9 +1,12 @@
 name: AWS Auth
+description: Autenticação AWS via OIDC
 
 inputs:
   aws-region:
+    description: 'Região AWS'
     required: true
   role-to-assume:
+    description: 'ARN da Role IAM para assumir'
     required: true
 
 runs:
