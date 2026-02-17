@@ -54,3 +54,34 @@ TestResult.xml
 nunit-*.xml
 
 .vs/
+
+#################################
+## Terraform                   ##
+#################################
+# Arquivos de estado e diretórios de trabalho
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfstate.lock.info
+
+# Variáveis sensíveis (NUNCA envie para o Git)
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Arquivos de log e planos exportados
+crash.log
+*.tfplan
+
+#################################
+## OS / Diversos               ##
+#################################
+.DS_Store
+Thumbs.db
+node_modules/
+.env
+.env.*
+!.env.example

@@ -1,1 +1,3 @@
-<Solution />
+<Solution>
+  <Project Path="Fibonacci/Fibonacci.csproj" />
+</Solution>
