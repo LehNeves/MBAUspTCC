@@ -13,8 +13,8 @@ permissions:
 
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}
-  LAMBDA_FUNCTION_NAME: ${{ var.PROJECT_NAME }}-lambda
-  ECR_REPOSITORY: ${{ var.PROJECT_NAME }}-lambda
+  LAMBDA_FUNCTION_NAME: ${{ vars.PROJECT_NAME }}-lambda
+  ECR_REPOSITORY: ${{ vars.PROJECT_NAME }}-lambda
   IMAGE_TAG: latest
   PROJECT_PATH: Serverless/Fibonacci
 
