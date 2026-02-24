@@ -20,6 +20,9 @@ public class Function
     /// </summary>
     public Function()
     {
+        var endpoint = Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_ENDPOINT")!;
+        var headers = Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_HEADERS")!;
+
         Sdk.CreateTracerProviderBuilder()
             .SetResourceBuilder(ResourceBuilder.CreateDefault()
                 .AddService("lambda-tcc"))
@@ -27,7 +30,8 @@ public class Function
             .AddHttpClientInstrumentation()
             .AddOtlpExporter(options =>
             {
-                
+                options.Endpoint = new Uri(endpoint);
+                options.Headers = headers;
             })
             .Build();
     }
