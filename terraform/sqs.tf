@@ -25,7 +25,7 @@ resource "aws_sqs_queue" "lambda_dlq" {
 resource "aws_sqs_queue" "worker_queue" {
   name = "${local.name_prefix}-worker-queue"
 
-  visibility_timeout_seconds = 60
+  visibility_timeout_seconds = 30
   message_retention_seconds  = 259200
 
   redrive_policy = jsonencode({
@@ -43,7 +43,7 @@ resource "aws_sqs_queue" "worker_queue" {
 resource "aws_sqs_queue" "lambda_queue" {
   name = "${local.name_prefix}-lambda-queue"
 
-  visibility_timeout_seconds = 60
+  visibility_timeout_seconds = 30
   message_retention_seconds  = 259200
 
   redrive_policy = jsonencode({

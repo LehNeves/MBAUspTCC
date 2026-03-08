@@ -53,3 +53,20 @@ resource "kubernetes_config_map" "aws_auth" {
 
   depends_on = [aws_eks_cluster.worker_cluster]
 }
+
+resource "helm_repository" "metrics_server" {
+  name = "metrics-server"
+  url  = "https://kubernetes-sigs.github.io/metrics-server/"
+}
+
+resource "helm_release" "metrics_server" {
+  name       = "metrics-server"
+  repository = helm_repository.metrics_server.url
+  chart      = "metrics-server"
+  namespace  = "kube-system"
+
+  set {
+    name  = "args"
+    value = "{--kubelet-insecure-tls}"
+  }
+}

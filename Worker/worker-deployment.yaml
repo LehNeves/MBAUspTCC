@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sqs-worker-low-load
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sqs-worker
+      scenario: low
+  template:
+    metadata:
+      labels:
+        app: sqs-worker
+        scenario: low
+    spec:
+      serviceAccountName: sqs-worker-sa
+      containers:
+        - name: worker
+          image: 676617883170.dkr.ecr.us-east-1.amazonaws.com/tcc-mba-usp-worker:latest
+          imagePullPolicy: Always
+
+          envFrom:
+            - configMapRef:
+                name: worker-config
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - test -f /tmp/worker-ready
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - pgrep worker || exit 1
+            initialDelaySeconds: 30
+            periodSeconds: 20

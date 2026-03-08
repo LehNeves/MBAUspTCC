@@ -1,3 +1,4 @@
+using Amazon;
 using Amazon.SQS;
 using Amazon.SQS.Model;
 
@@ -9,7 +10,11 @@ public class Worker(ILogger<Worker> logger) : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            var clientSQS = new AmazonSQSClient(Amazon.RegionEndpoint.SAEast1);
+            string AWS_REGION = Environment.GetEnvironmentVariable("AWS_REGION") ?? throw new Exception("Environment variable AWS_REGION not defined");
+
+            var region = RegionEndpoint.GetBySystemName(AWS_REGION);
+
+            var clientSQS = new AmazonSQSClient(region);
 
             var mensagens = await SQSFibonacci.LerMensagensAsync(clientSQS);
 
