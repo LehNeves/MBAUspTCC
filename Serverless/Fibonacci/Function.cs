@@ -1,10 +1,5 @@
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
-using OpenTelemetry;
-using OpenTelemetry.Instrumentation.AWSLambda;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
-
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -20,20 +15,6 @@ public class Function
     /// </summary>
     public Function()
     {
-        var endpoint = Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_ENDPOINT")!;
-        var headers = Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_HEADERS")!;
-
-        Sdk.CreateTracerProviderBuilder()
-            .SetResourceBuilder(ResourceBuilder.CreateDefault()
-                .AddService("lambda-tcc"))
-            .AddAWSLambdaConfigurations()
-            .AddHttpClientInstrumentation()
-            .AddOtlpExporter(options =>
-            {
-                options.Endpoint = new Uri(endpoint);
-                options.Headers = headers;
-            })
-            .Build();
     }
 
     /// <summary>
@@ -57,9 +38,6 @@ public class Function
         bool resultado =  EhFibonacci(numero);
 
         context.Logger.LogInformation(string.Format("O número \"{0}\" {1}pertence a sequência de Fibonacci!", numero, resultado ? "" : "não "));
-
-        // TODO: Do interesting work based on the new message
-        await Task.CompletedTask;
     }
 
     private static bool EhFibonacci(int valor)

@@ -1,1 +1,4 @@
 # MBAUspTCC
+
+
+terraform plan -var-file="secrets.tfvars"
