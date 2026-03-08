@@ -1,10 +1,10 @@
 <Solution>
   <Folder Name="/Kubernetes/">
-    <File Path="worker-configmap.yaml" />
-    <File Path="worker-deployment.yaml" />
-    <File Path="worker-high.yaml" />
-    <File Path="worker-low.yaml" />
-    <File Path="worker-medium.yaml" />
+    <File Path="Kubernetes/worker-configmap.yaml" />
+    <File Path="Kubernetes/worker-deployment.yaml" />
+    <File Path="Kubernetes/worker-high.yaml" />
+    <File Path="Kubernetes/worker-low.yaml" />
+    <File Path="Kubernetes/worker-medium.yaml" />
   </Folder>
   <Project Path="Fibonacci/Fibonacci.csproj" Id="c3b9e660-f321-4871-aa68-c59c4e63d72c" />
 </Solution>
