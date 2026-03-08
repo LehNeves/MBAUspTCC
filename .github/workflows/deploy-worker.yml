@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
     paths:
       - 'Worker/**'
+  workflow_dispatch:
 
 permissions:
   id-token: write
