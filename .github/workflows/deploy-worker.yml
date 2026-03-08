@@ -13,7 +13,7 @@ permissions:
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}
   ECR_REPOSITORY: ${{ vars.PROJECT_NAME }}-worker
-  CLUSTER_NAME: tcc-eks-cluster
+  CLUSTER_NAME: ${{ vars.PROJECT_NAME }}-eks
   IMAGE_TAG: latest
   ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   PROJECT_PATH: Worker/Fibonacci
