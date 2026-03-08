@@ -13,6 +13,10 @@ namespace Fibonacci;
 
 public class Function
 {
+    TracerProvider _grafana;
+    private static readonly OtelDiagnosticListener _otelDiag = new();
+    private static readonly ActivitySource _activitySource = new("LambdaApplication");
+
     /// <summary>
     /// Default constructor. This constructor is used by Lambda to construct the instance. When invoked in a Lambda environment
     /// the AWS credentials will come from the IAM role associated with the function and the AWS region will be set to the
@@ -23,15 +27,17 @@ public class Function
         var endpoint = Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_ENDPOINT")!;
         var headers = Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_HEADERS")!;
 
-        Sdk.CreateTracerProviderBuilder()
+        _grafana = Sdk.CreateTracerProviderBuilder()
             .SetResourceBuilder(ResourceBuilder.CreateDefault()
-                .AddService("lambda-tcc"))
+                .AddService("LambdaApplication"))
+            .AddSource("LambdaApplication")
             .AddAWSLambdaConfigurations()
             .AddHttpClientInstrumentation()
             .AddOtlpExporter(options =>
             {
                 options.Endpoint = new Uri(endpoint);
                 options.Headers = headers;
+                options.Protocol = OtlpExportProtocol.HttpProtobuf;
             })
             .Build();
     }
@@ -49,10 +55,15 @@ public class Function
         {
             await ProcessMessageAsync(message, context);
         }
+
+        _grafana.ForceFlush(5000);
     }
 
     private async Task ProcessMessageAsync(SQSEvent.SQSMessage message, ILambdaContext context)
     {
+        using var activity = _activitySource.StartActivity("ProcessMessage");
+        activity?.SetTag("message.body", message.Body);
+
         int numero = int.Parse(message.Body);
         bool resultado =  EhFibonacci(numero);
 

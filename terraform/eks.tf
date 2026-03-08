@@ -53,3 +53,54 @@ resource "kubernetes_config_map" "aws_auth" {
 
   depends_on = [aws_eks_cluster.worker_cluster]
 }
+
+resource "helm_release" "grafana_agent" {
+  name             = "grafana-agent"
+  repository       = "https://grafana.github.io/helm-charts"
+  chart            = "grafana-agent"
+  namespace        = "monitoring"
+  create_namespace = true
+
+  values = [
+    yamlencode({
+      cluster = {
+        name = "eks-tcc"
+      }
+
+      traces = {
+        enabled = true
+
+        configs = [
+          {
+            name = "default"
+
+            receivers = {
+              otlp = {
+                protocols = {
+                  grpc = {}
+                  http = {}
+                }
+              }
+            }
+
+            remote_write = [
+              {
+                endpoint = var.grafana_cloud_tempo_url
+
+                basic_auth = {
+                  username = var.grafana_cloud_instance_id
+                  password = var.grafana_cloud_api_key
+                }
+              }
+            ]
+          }
+        ]
+      }
+    })
+  ]
+
+  depends_on = [
+    aws_eks_cluster.worker_cluster,
+    aws_eks_node_group.default
+  ]
+}

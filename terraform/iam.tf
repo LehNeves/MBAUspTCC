@@ -150,3 +150,71 @@ resource "aws_iam_role_policy_attachment" "github_actions_attach" {
   role       = aws_iam_role.github_actions.name
   policy_arn = aws_iam_policy.github_actions_policy.arn
 }
+
+resource "aws_iam_policy" "grafana_cloudwatch" {
+  name = "grafana-cloudwatch-policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "cloudwatch:GetMetricData",
+          "cloudwatch:ListMetrics",
+          "tag:GetResources"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role" "grafana_cloud_role" {
+  name = "grafana-cloud-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          AWS = var.grafana_cloud_account_id
+        }
+        Action = "sts:AssumeRole"
+        Condition = {
+          StringEquals = {
+            "sts:ExternalId" = var.grafana_cloud_external_id
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "attach" {
+  role       = aws_iam_role.grafana_cloud_role.name
+  policy_arn = aws_iam_policy.grafana_cloudwatch.arn
+}
+
+resource "aws_iam_policy" "grafana_cost_policy" {
+  name = "GrafanaCostExplorerPolicy"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ce:GetCostAndUsage"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "attach_cost_policy" {
+  role       = aws_iam_role.grafana_cloud_role.name
+  policy_arn = aws_iam_policy.grafana_cost_policy.arn
+}
