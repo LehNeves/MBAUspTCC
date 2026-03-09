@@ -68,7 +68,7 @@ jobs:
       - name: Substitute AWS Account ID
         env:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-          AWS_ROLE: ${{ vars.AWS_ROLE }}
+          AWS_ROLE: $AWS_ROLE
           
         run: |
           envsubst < Worker/Kubernetes/worker-sqs-sa.yaml > Worker/Kubernetes/worker-sqs-sa-processed.yaml
