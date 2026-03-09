@@ -3,11 +3,22 @@ using Amazon.SQS.Model;
 
 namespace Fibonacci;
 
-public class Worker(ILogger<Worker> logger, IAmazonSQS _sqsClient) : BackgroundService
+public class Worker : BackgroundService
 {
-    readonly string _queueUrl = Environment.GetEnvironmentVariable("SQS_QUEUE_URL") ?? throw new Exception("SQS_QUEUE_URL missing");
-    readonly int _batchSize = int.Parse(Environment.GetEnvironmentVariable("WORKER_BATCH_SIZE") ?? "1");
-    readonly int _polling = int.Parse(Environment.GetEnvironmentVariable("POLL_INTERVAL_SECONDS") ?? "20");
+    private readonly ILogger<Worker> _logger;
+    private readonly IAmazonSQS _sqsClient;
+    readonly string _queueUrl;
+    readonly int _batchSize;
+    readonly int _polling;
+
+    public Worker(ILogger<Worker> logger, IAmazonSQS sqsClient, IConfiguration config)
+    {
+        _logger = logger;
+        _sqsClient = sqsClient;
+        _queueUrl = config["SQS_QUEUE_URL"] ?? throw new Exception("SQS_QUEUE_URL missing");
+        _batchSize = config.GetValue<int?>("WORKER_BATCH_SIZE") ?? 1;
+        _polling = config.GetValue<int?>("POLL_INTERVAL_SECONDS") ?? 20;
+    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -35,7 +46,7 @@ public class Worker(ILogger<Worker> logger, IAmazonSQS _sqsClient) : BackgroundS
         int numero = int.Parse(mensagem.Body);
         bool resultado = EhFibonacci(numero);
 
-        logger.LogInformation(string.Format("O número \"{0}\" {1}pertence a sequência de Fibonacci!", numero, resultado ? "" : "não "));
+        _logger.LogInformation(string.Format("O número \"{0}\" {1}pertence a sequência de Fibonacci!", numero, resultado ? "" : "não "));
     }
 
     private static bool EhFibonacci(int valor)
