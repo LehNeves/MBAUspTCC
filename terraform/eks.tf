@@ -27,12 +27,12 @@ resource "aws_eks_node_group" "worker_nodes" {
   ]
 
   scaling_config {
-    desired_size = 1
+    desired_size = 2
     min_size     = 1
-    max_size     = 1
+    max_size     = 3
   }
 
-  instance_types = ["t3.micro"]
+  instance_types = ["t3.medium"]
 }
 
 resource "kubernetes_config_map" "aws_auth" {
@@ -47,26 +47,44 @@ resource "kubernetes_config_map" "aws_auth" {
         rolearn  = aws_iam_role.eks_admin.arn
         username = "eks-admin"
         groups   = ["system:masters"]
+      },
+      {
+        rolearn  = aws_iam_role.github_actions.arn
+        username = "github-actions"
+        groups   = ["system:masters"]
+      },
+      {
+        rolearn  = aws_iam_role.eks_node_role.arn
+        username = "system:node:{{EC2PrivateDNSName}}"
+        groups = [
+          "system:bootstrappers",
+          "system:nodes"
+        ]
       }
     ])
   }
 
-  depends_on = [aws_eks_cluster.worker_cluster]
-}
-
-resource "helm_repository" "metrics_server" {
-  name = "metrics-server"
-  url  = "https://kubernetes-sigs.github.io/metrics-server/"
+  depends_on = [aws_eks_cluster.worker_cluster, aws_eks_node_group.worker_nodes]
 }
 
 resource "helm_release" "metrics_server" {
   name       = "metrics-server"
-  repository = helm_repository.metrics_server.url
+  repository = "https://kubernetes-sigs.github.io/metrics-server/"
   chart      = "metrics-server"
   namespace  = "kube-system"
 
   set {
-    name  = "args"
-    value = "{--kubelet-insecure-tls}"
+    name  = "args[0]"
+    value = "--kubelet-insecure-tls"
+  }
+
+  set {
+    name  = "args[1]"
+    value = "--kubelet-preferred-address-types=InternalIP"
+  }
+
+  set {
+    name  = "args[2]"
+    value = "--metric-resolution=15s"
   }
 }

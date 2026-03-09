@@ -99,7 +99,7 @@ resource "aws_iam_role" "eks_admin" {
 }
 
 resource "aws_iam_role" "github_actions" {
-  name = "${local.name_prefix}-github-actions-role"
+  name = "GitHubRole"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
