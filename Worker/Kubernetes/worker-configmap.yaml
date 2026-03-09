@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: worker-config
 data:
-  AWS_REGION: "us-east-1"
+  AWS__Region: "us-east-1"
   SQS_QUEUE_URL: "https://sqs.us-east-1.amazonaws.com/676617883170/tcc-mba-usp-worker-queue"
   WORKER_BATCH_SIZE: "10"
   POLL_INTERVAL_SECONDS: "20"

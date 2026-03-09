@@ -1,27 +1,31 @@
-using Amazon;
 using Amazon.SQS;
 using Amazon.SQS.Model;
 
 namespace Fibonacci;
 
-public class Worker(ILogger<Worker> logger) : BackgroundService
+public class Worker(ILogger<Worker> logger, IAmazonSQS _sqsClient, IConfiguration _config) : BackgroundService
 {
+    readonly string _queueUrl = Environment.GetEnvironmentVariable("SQS_QUEUE_URL") ?? throw new Exception("SQS_QUEUE_URL missing");
+    readonly int _batchSize = int.Parse(Environment.GetEnvironmentVariable("WORKER_BATCH_SIZE") ?? "1");
+    readonly int _polling = int.Parse(Environment.GetEnvironmentVariable("POLL_INTERVAL_SECONDS") ?? "20");
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            string AWS_REGION = Environment.GetEnvironmentVariable("AWS_REGION") ?? throw new Exception("Environment variable AWS_REGION not defined");
+            var request = new ReceiveMessageRequest
+            {
+                QueueUrl = _queueUrl,
+                MaxNumberOfMessages = _batchSize,
+                WaitTimeSeconds = _polling
+            };
 
-            var region = RegionEndpoint.GetBySystemName(AWS_REGION);
+            var response = await _sqsClient.ReceiveMessageAsync(request, stoppingToken);
 
-            var clientSQS = new AmazonSQSClient(region);
-
-            var mensagens = await SQSFibonacci.LerMensagensAsync(clientSQS);
-
-            foreach (var mensagem in mensagens)
+            foreach (var mensagem in response.Messages)
             {
                 await ProcessMessageAsync(mensagem);
-                await clientSQS.DeleteMessageAsync("https://sqs.sa-east-1.amazonaws.com/676617883170/FibonacciWorkerSQS", mensagem.ReceiptHandle);
+                await _sqsClient.DeleteMessageAsync(_queueUrl, mensagem.ReceiptHandle, stoppingToken);
             }
         }
     }
@@ -32,9 +36,6 @@ public class Worker(ILogger<Worker> logger) : BackgroundService
         bool resultado = EhFibonacci(numero);
 
         logger.LogInformation(string.Format("O número \"{0}\" {1}pertence a sequência de Fibonacci!", numero, resultado ? "" : "não "));
-
-        // TODO: Do interesting work based on the new message
-        await Task.CompletedTask;
     }
 
     private static bool EhFibonacci(int valor)
