@@ -3,7 +3,7 @@ using Amazon.SQS.Model;
 
 namespace Fibonacci;
 
-public class Worker(ILogger<Worker> logger, IAmazonSQS _sqsClient, IConfiguration _config) : BackgroundService
+public class Worker(ILogger<Worker> logger, IAmazonSQS _sqsClient) : BackgroundService
 {
     readonly string _queueUrl = Environment.GetEnvironmentVariable("SQS_QUEUE_URL") ?? throw new Exception("SQS_QUEUE_URL missing");
     readonly int _batchSize = int.Parse(Environment.GetEnvironmentVariable("WORKER_BATCH_SIZE") ?? "1");
