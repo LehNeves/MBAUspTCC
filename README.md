@@ -46,3 +46,4 @@ kubectl apply -f .\worker-deployment.yaml
 
 # Deletar
 kubectl delete -f .\worker-deployment.yaml
+kubectl delete pod <nome-do-pod>

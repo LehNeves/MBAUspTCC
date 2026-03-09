@@ -31,7 +31,7 @@ resource "aws_iam_role" "worker_role" {
       Action = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringEquals = {
-          "${local.oidc_host}:sub" = "system:serviceaccount:default:sqs-worker-sa"
+          "${local.oidc_host}:sub" = "system:serviceaccount:default:worker-sqs-sa"
         }
       }
     }]
