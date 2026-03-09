@@ -23,13 +23,38 @@ resource "aws_iam_role" "worker_role" {
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    statement = [{
+    Statement = [{
       Effect = "Allow"
       Principal = {
-        Service = "ec2.amazonaws.com"
+        Federated = aws_iam_openid_connect_provider.eks.arn
       }
-      Action = "sts:AssumeRole"
+      Action = "sts:AssumeRoleWithWebIdentity"
+      Condition = {
+        StringEquals = {
+          "${local.oidc_host}:sub" = "system:serviceaccount:default:sqs-worker-sa"
+        }
+      }
     }]
+  })
+}
+
+resource "aws_iam_role_policy" "worker_policy" {
+  name = "${local.name_prefix}-worker-sqs-policy"
+  role = aws_iam_role.worker_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes"
+        ]
+        Resource = aws_sqs_queue.worker_queue.arn
+      }
+    ]
   })
 }
 

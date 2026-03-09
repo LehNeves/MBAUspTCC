@@ -19,4 +19,8 @@ variable "eks_cluster_name" {
 locals {
   name_prefix      = "${var.project_name}"
   eks_cluster_name = "${local.name_prefix}-eks"
+  oidc_host = replace(
+    replace(aws_eks_cluster.worker_cluster.identity[0].oidc[0].issuer, "https://", ""),
+    "/$", ""
+  )
 }

@@ -18,6 +18,7 @@ env:
   IMAGE_TAG: latest
   ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   PROJECT_PATH: Worker/Fibonacci
+  AWS_ROLE: ${{ vars.PROJECT_NAME }}-worker-role
 
 jobs:
   deploy:
@@ -63,6 +64,18 @@ jobs:
       - name: Apply Configmap
         run: |
           kubectl apply -f Worker/Kubernetes/worker-configmap.yaml
+
+      - name: Substitute AWS Account ID
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          AWS_ROLE: ${{ vars.AWS_ROLE }}
+          
+        run: |
+          envsubst < Worker/Kubernetes/worker-sqs-sa.yaml > Worker/Kubernetes/worker-sqs-sa-processed.yaml
+
+      - name: Apply ServiceAccount to Kubernetes
+        run: |
+          kubectl apply -f Worker/Kubernetes/worker-sqs-sa-processed.yaml
 
       - name: Deploy Kubernetes
         run: |

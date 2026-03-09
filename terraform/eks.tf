@@ -67,6 +67,16 @@ resource "kubernetes_config_map" "aws_auth" {
   depends_on = [aws_eks_cluster.worker_cluster, aws_eks_node_group.worker_nodes]
 }
 
+data "tls_certificate" "eks_oidc" {
+  url = aws_eks_cluster.worker_cluster.identity[0].oidc[0].issuer
+}
+
+resource "aws_iam_openid_connect_provider" "eks" {
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = [data.tls_certificate.eks_oidc.certificates[0].sha1_fingerprint]
+  url             = data.tls_certificate.eks_oidc.url
+}
+
 resource "helm_release" "metrics_server" {
   name       = "metrics-server"
   repository = "https://kubernetes-sigs.github.io/metrics-server/"

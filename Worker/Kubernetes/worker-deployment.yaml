@@ -14,6 +14,7 @@ spec:
         app: sqs-worker
         scenario: low
     spec:
+      serviceAccountName: worker-sqs-sa
       containers:
         - name: worker
           image: 676617883170.dkr.ecr.us-east-1.amazonaws.com/tcc-mba-usp-worker:latest
