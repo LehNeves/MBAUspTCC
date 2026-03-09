@@ -7,7 +7,7 @@ internal static class SQSFibonacci
 {
     public async static Task<IEnumerable<Message>> LerMensagensAsync(AmazonSQSClient clientSQS)
     {
-        string SQS_QUEUE_URL = Environment.GetEnvironmentVariable("URL_WORKER_SNS") ?? throw new Exception("Environment variable URL_WORKER_SNS not defined"); ;
+        string SQS_QUEUE_URL = Environment.GetEnvironmentVariable("SQS_QUEUE_URL") ?? throw new Exception("Environment variable SQS_QUEUE_URL not defined"); ;
         int WORKER_BATCH_SIZE = int.Parse(Environment.GetEnvironmentVariable("WORKER_BATCH_SIZE" ?? "1")!);
         int POLL_INTERVAL_SECONDS = int.Parse(Environment.GetEnvironmentVariable("POLL_INTERVAL_SECONDS") ?? "20");
 

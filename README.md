@@ -35,3 +35,14 @@ aws eks describe-nodegroup --cluster-name tcc-mba-usp-eks --nodegroup-name worke
 
 # Descrever o Deployment
 kubectl describe deployment sqs-worker-low-load
+kubectl describe rs <nome-do-replicaset>
+kubectl describe pods <nome-do-pod>
+
+# Obter Logs
+kubectl logs <nome-do-pod>
+
+# Aplicar
+kubectl apply -f .\worker-deployment.yaml
+
+# Deletar
+kubectl delete -f .\worker-deployment.yaml
