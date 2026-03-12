@@ -33,7 +33,9 @@ public class Worker : BackgroundService
 
             var response = await _sqsClient.ReceiveMessageAsync(request, stoppingToken);
 
-            foreach (var mensagem in response.Messages)
+            var messages = response?.Messages ?? [];
+
+            foreach (var mensagem in messages)
             {
                 await ProcessMessageAsync(mensagem);
                 await _sqsClient.DeleteMessageAsync(_queueUrl, mensagem.ReceiptHandle, stoppingToken);
