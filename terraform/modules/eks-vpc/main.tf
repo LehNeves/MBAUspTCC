@@ -5,7 +5,20 @@ resource "aws_vpc" "eks_vpc" {
   enable_dns_hostnames = true
 
   tags = {
-    Name = "${local.name_prefix}-vpc"
+    Name = var.vpc_name
+  }
+}
+
+resource "aws_internet_gateway" "eks_igw" {
+  vpc_id = aws_vpc.eks_vpc.id
+}
+
+resource "aws_route_table" "eks_rt" {
+  vpc_id = aws_vpc.eks_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.eks_igw.id
   }
 }
 
@@ -19,7 +32,7 @@ resource "aws_subnet" "eks_subnet_a" {
   tags = {
     Name = "eks-subnet-a"
 
-    "kubernetes.io/cluster/${local.eks_cluster_name}" = "shared"
+    "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
     "kubernetes.io/role/elb"                          = "1"
   }
 }
@@ -34,21 +47,8 @@ resource "aws_subnet" "eks_subnet_b" {
   tags = {
     Name = "eks-subnet-b"
 
-    "kubernetes.io/cluster/${local.eks_cluster_name}" = "shared"
+    "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
     "kubernetes.io/role/elb"                          = "1"
-  }
-}
-
-resource "aws_internet_gateway" "eks_igw" {
-  vpc_id = aws_vpc.eks_vpc.id
-}
-
-resource "aws_route_table" "eks_rt" {
-  vpc_id = aws_vpc.eks_vpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.eks_igw.id
   }
 }
 

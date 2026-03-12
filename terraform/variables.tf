@@ -10,17 +10,20 @@ variable "project_name" {
   default     = "tcc-mba-usp"
 }
 
-variable "eks_cluster_name" {
-  type        = string
-  description = "Nome do cluster EKS"
-  default     = ""
-}
-
 locals {
   name_prefix      = "${var.project_name}"
-  eks_cluster_name = "${local.name_prefix}-eks"
-  oidc_host = replace(
-    replace(aws_eks_cluster.worker_cluster.identity[0].oidc[0].issuer, "https://", ""),
-    "/$", ""
-  )
+  oidc_host = module.eks_cluster.cluster_oidc_host
+  eks_openid_arn = module.eks_cluster.eks_openid_arn
+}
+
+variable "github_provider_oidc_arn" {
+  description = "OIDC provider ARN do GitHub"
+  type        = string
+  sensitive   = true
+}
+
+variable "github_role_name" {
+  description = "Role name do GitHub"
+  type        = string
+  sensitive   = true
 }

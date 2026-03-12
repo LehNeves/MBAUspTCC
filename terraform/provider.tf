@@ -24,11 +24,21 @@ provider "aws" {
 }
 
 data "aws_eks_cluster" "cluster" {
-  name = aws_eks_cluster.worker_cluster.name
+  name = module.eks_cluster.cluster_name
+
+  depends_on = [
+    module.eks_cluster,
+    module.eks_nodegroup
+  ]
 }
 
 data "aws_eks_cluster_auth" "cluster" {
-  name = aws_eks_cluster.worker_cluster.name
+  name = module.eks_cluster.cluster_name
+
+  depends_on = [
+    module.eks_cluster,
+    module.eks_nodegroup
+  ]
 }
 
 provider "kubernetes" {
@@ -37,19 +47,6 @@ provider "kubernetes" {
     data.aws_eks_cluster.cluster.certificate_authority[0].data
   )
   token = data.aws_eks_cluster_auth.cluster.token
-
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "aws"
-    args = [
-      "eks",
-      "get-token",
-      "--cluster-name",
-      aws_eks_cluster.worker_cluster.name,
-      "--region",
-      var.aws_region
-    ]
-  }
 }
 
 provider "helm" {
