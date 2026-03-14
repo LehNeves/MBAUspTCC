@@ -17,6 +17,8 @@ env:
   ECR_REPOSITORY: ${{ vars.PROJECT_NAME }}-lambda
   IMAGE_TAG: latest
   PROJECT_PATH: Serverless/Fibonacci
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  AWS_ROLE: ${{ vars.PROJECT_NAME }}-lambda-role
 
 jobs:
   deploy:
@@ -30,7 +32,7 @@ jobs:
       - name: AWS Auth
         uses: ./.github/actions/aws-auth
         with:
-          role-to-assume: arn:aws:iam::$AWS_ACCOUNT_ID:role/$AWS_ROLE
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.AWS_ROLE }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR

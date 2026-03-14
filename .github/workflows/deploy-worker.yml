@@ -31,7 +31,7 @@ jobs:
       - name: AWS Auth
         uses: ./.github/actions/aws-auth
         with:
-          role-to-assume: arn:aws:iam::$ACCOUNT_ID:role/$AWS_ROLE
+          role-to-assume: arn:aws:iam::${{ env.ACCOUNT_ID }}:role/${{ env.AWS_ROLE }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
