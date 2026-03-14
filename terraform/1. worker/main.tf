@@ -64,6 +64,7 @@ module "eks_nodegroup" {
 module "eks_access" {
   source = "./modules/eks-access"
 
+  project_name         = var.project_name
   current_identity_arn = module.eks_data.current_identity_arn
   github_role_arn      = module.eks_data.github_role_arn
 
@@ -72,6 +73,7 @@ module "eks_access" {
 
   eks_cluster_name = module.eks_cluster.cluster_name
   eks_openid_arn   = module.eks_cluster.eks_openid_arn
+  eks_openid_url   = module.eks_cluster.cluster_oidc_host
   worker_queue_arn = module.eks_sqs.worker_queue_arn
 
   depends_on = [

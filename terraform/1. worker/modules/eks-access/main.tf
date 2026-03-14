@@ -55,7 +55,7 @@ resource "aws_iam_role" "cloudwatch_agent" {
       Action = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringEquals = {
-          "${replace(var.eks_openid_arn, "https://", "")}:sub" = "system:serviceaccount:amazon-cloudwatch:cloudwatch-agent"
+          "${var.eks_openid_url}:sub" = "system:serviceaccount:amazon-cloudwatch:cloudwatch-agent"
         }
       }
     }]
@@ -74,7 +74,7 @@ resource "aws_iam_role_policy_attachment" "cw_agent" {
 }
 
 resource "aws_iam_role" "worker_role" {
-  name = "${var.eks_cluster_name}-worker-role"
+  name = "${var.project_name}-worker-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -85,7 +85,7 @@ resource "aws_iam_role" "worker_role" {
       Action = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringEquals = {
-          "${replace(var.eks_openid_arn, "https://", "")}:sub" = "system:serviceaccount:default:worker-sqs-sa"
+          "${var.eks_openid_url}:sub" = "system:serviceaccount:default:worker-sqs-sa"
         }
       }
     }]

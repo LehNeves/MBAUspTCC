@@ -3,6 +3,11 @@ variable "eks_cluster_name" {
   description = "Nome do cluster EKS"
 }
 
+variable "project_name" {
+  type        = string
+  description = "Nome do projeto"
+}
+
 variable "github_role_arn" {
   type        = string
   description = "ARN do GitHubRole"
@@ -26,6 +31,11 @@ variable "eks_node_role_arn" {
 variable "eks_openid_arn" {
   type        = string
   description = "ARN do OIDC"
+}
+
+variable "eks_openid_url" {
+  type        = string
+  description = "URL do OIDC"
 }
 
 variable "worker_queue_arn" {
