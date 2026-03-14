@@ -27,3 +27,8 @@ variable "eks_openid_arn" {
   type        = string
   description = "ARN do OIDC"
 }
+
+variable "worker_queue_arn" {
+  type        = string
+  description = "ARN da fila SQS"
+}

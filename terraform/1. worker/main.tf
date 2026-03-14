@@ -72,8 +72,10 @@ module "eks_access" {
 
   eks_cluster_name = module.eks_cluster.cluster_name
   eks_openid_arn   = module.eks_cluster.eks_openid_arn
+  worker_queue_arn = module.eks_sqs.worker_queue_arn
 
   depends_on = [
+    module.eks_sqs,
     module.eks_cluster,
     module.eks_nodegroup
   ]

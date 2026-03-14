@@ -72,3 +72,41 @@ resource "aws_iam_role_policy_attachment" "cw_agent" {
   role       = aws_iam_role.cloudwatch_agent.name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
+
+resource "aws_iam_role" "worker_role" {
+  name = "${var.eks_cluster_name}-worker-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Federated = var.eks_openid_arn
+      }
+      Action = "sts:AssumeRoleWithWebIdentity"
+      Condition = {
+        StringEquals = {
+          "${replace(var.eks_openid_arn, "https://", "")}:sub" = "system:serviceaccount:default:worker-sqs-sa"
+        }
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "worker_policy" {
+  name = "${var.eks_cluster_name}-worker-sqs-policy"
+  role = aws_iam_role.worker_role.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes"
+        ]
+        Resource = var.worker_queue_arn
+      }
+    ]
+  })
+}
