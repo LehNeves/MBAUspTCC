@@ -6,9 +6,10 @@ resource "aws_ecr_repository" "worker_repo" {
   }
 
   image_tag_mutability = "MUTABLE"
+  force_delete         = true
 
   tags = {
-    Project     = var.project_name
-    UsedBy      = "eks-worker"
+    Project = var.project_name
+    UsedBy  = "eks-worker"
   }
 }

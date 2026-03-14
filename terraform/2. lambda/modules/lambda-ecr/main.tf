@@ -6,6 +6,7 @@ resource "aws_ecr_repository" "lambda_repo" {
   }
 
   image_tag_mutability = "MUTABLE"
+  force_delete         = true
 
   tags = {
     Project = var.project_name
